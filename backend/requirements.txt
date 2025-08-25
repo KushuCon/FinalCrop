@@ -6,4 +6,4 @@ numpy
 google-generativeai
 fpdf2
 python-dotenv
-
+gunicorn

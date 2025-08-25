@@ -42,8 +42,12 @@ export default function App() {
     setError('');
     const formData = new FormData();
     formData.append('image', file);
+    
+    // Use environment variable for API URL, fallback to localhost for development
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+    
     try {
-      const response = await fetch('http://127.0.0.1:5000/analyze_image', { method: 'POST', body: formData });
+      const response = await fetch(`${apiUrl}/analyze_image`, { method: 'POST', body: formData });
       if (!response.ok) throw new Error((await response.json()).error || 'Server error');
       const data = await response.json();
       setReportData(data);
@@ -56,8 +60,12 @@ export default function App() {
   
   const handleDownload = async () => {
     if (!reportData) return;
+    
+    // Use environment variable for API URL, fallback to localhost for development
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+    
     try {
-      const response = await fetch('http://127.0.0.1:5000/generate_pdf', {
+      const response = await fetch(`${apiUrl}/generate_pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reportData),

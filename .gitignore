@@ -6,4 +6,8 @@ __pycache__/
 node_modules/
 dist/
 
+# Environment files
 .env
+backend/.env
+react-frontend/.env
+*.env
