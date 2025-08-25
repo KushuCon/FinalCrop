@@ -295,8 +295,8 @@ CLASS_NAMES = {
 # --- INITIALIZATION ---
 app = Flask(__name__)
 
-# Simple CORS - allow all origins to fix deployment issue
-CORS(app, origins="*", methods=['GET', 'POST', 'OPTIONS'], allow_headers=['Content-Type'])
+# Aggressive CORS fix - allow everything
+CORS(app)
 
 try:
     genai.configure(api_key=YOUR_GEMINI_API_KEY)
@@ -448,14 +448,28 @@ def create_pdf_report(report_text, disease_name):
 
 @app.route('/analyze_image', methods=['POST'])
 def analyze_image():
+    # Add explicit CORS headers
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'OK'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST')
+        return response
+        
     if model is None or not class_indices_to_names:
-        return jsonify({"error": "Server is not configured properly."}), 500
+        response = jsonify({"error": "Server is not configured properly."})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
     if 'image' not in request.files:
-        return jsonify({"error": "No image file provided"}), 400
+        response = jsonify({"error": "No image file provided"})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 400
 
     file = request.files['image']
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        response = jsonify({"error": "No selected file"})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 400
 
     try:
         processed_image = preprocess_image(file)
@@ -464,20 +478,34 @@ def analyze_image():
         disease_name = class_indices_to_names.get(predicted_class_index, "Unknown Disease")
         report_text = generate_advisory_report(disease_name)
         
-        return jsonify({
+        response = jsonify({
             "disease_name": disease_name,
             "report_text": report_text
         })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
     except Exception as e:
         print(f"An error occurred during analysis: {e}")
-        return jsonify({"error": f"An internal server error occurred: {e}"}), 500
+        response = jsonify({"error": f"An internal server error occurred: {e}"})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
 
 @app.route('/generate_pdf', methods=['POST'])
 def generate_pdf():
+    # Add explicit CORS headers
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'OK'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST')
+        return response
+        
     data = request.get_json()
     if not data or 'report_text' not in data or 'disease_name' not in data:
-        return jsonify({"error": "Missing report data"}), 400
+        response = jsonify({"error": "Missing report data"})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 400
         
     try:
         report_text = data['report_text']
@@ -487,20 +515,36 @@ def generate_pdf():
         # Clean filename for download
         clean_filename = clean_text_for_pdf(disease_name.replace(' ', '_'))
         
-        return send_file(
+        response = send_file(
             io.BytesIO(pdf_bytes),
             mimetype='application/pdf',
             as_attachment=True,
             download_name=f'AgriCare_Report_{clean_filename}.pdf'
         )
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     except Exception as e:
         print(f"An error occurred during PDF generation: {e}")
-        return jsonify({"error": f"An internal server error occurred during PDF generation: {str(e)}"}), 500
+        response = jsonify({"error": f"An internal server error occurred during PDF generation: {str(e)}"})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
     """Simple health check endpoint"""
-    return jsonify({"status": "healthy", "message": "AgriCare AI Backend is running"})
+    response = jsonify({"status": "healthy", "message": "AgriCare AI Backend is running"})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+# Handle preflight OPTIONS requests
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify({'status': 'OK'})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
 
 # --- MAIN EXECUTION ---
 
