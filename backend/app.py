@@ -294,7 +294,13 @@ CLASS_NAMES = {
 
 # --- INITIALIZATION ---
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS - get allowed origins from environment variable or use defaults
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://final-crop-render.vercel.app,https://*.vercel.app,http://localhost:5173,http://127.0.0.1:5173").split(",")
+
+CORS(app, origins=allowed_origins, 
+methods=['GET', 'POST', 'OPTIONS'],
+allow_headers=['Content-Type', 'Authorization'])
 
 try:
     genai.configure(api_key=YOUR_GEMINI_API_KEY)
