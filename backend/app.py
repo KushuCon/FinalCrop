@@ -538,7 +538,14 @@ def generate_pdf():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Simple health check endpoint"""
-    response = jsonify({"status": "healthy", "message": "AgriCare AI Backend is running"})
+    response = jsonify({
+        "status": "healthy",
+        "message": "AgriCare AI Backend is running",
+        "llm": "groq/llama-3.3-70b-versatile" if llm else "NOT CONFIGURED",
+        "model": "loaded" if model else "NOT LOADED",
+        "model_file": next((f for f in ['hybrid_crop_disease_model.keras', 'crop_disease_model.h5'] 
+                           if os.path.exists(os.path.join('models', f))), "none found")
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
