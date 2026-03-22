@@ -1,0 +1,9 @@
+
+PS C:\Users\kushu\Downloads\crop-disease-project> cd backend
+PS C:\Users\kushu\Downloads\crop-disease-project\backend> venv\Scripts\activate
+
+PS C:\Users\kushu\Downloads\crop-disease-project\backend> python app.py
+
+
+PS C:\Users\kushu\Downloads\crop-disease-project> cd react-frontend
+PS C:\Users\kushu\Downloads\crop-disease-project\react-frontend> npm run dev
