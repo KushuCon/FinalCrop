@@ -3,7 +3,7 @@ Flask-Cors
 tensorflow
 Pillow
 numpy
-google-generativeai
+groq
 fpdf2
 python-dotenv
 gunicorn

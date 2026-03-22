@@ -267,7 +267,7 @@ import tensorflow as tf
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 
-import google.generativeai as genai
+from groq import Groq
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
 
@@ -278,10 +278,10 @@ from fpdf.enums import XPos, YPos
 load_dotenv() 
 
 
-YOUR_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # IMPORTANT: Configure your Class Names here
-CLASS_NAMES = {
+CLASS_NAMES = { 
     'Pepper__bell___Bacterial_spot': 0, 'Pepper__bell___healthy': 1, 
     'Potato___Early_blight': 2, 'Potato___Late_blight': 3, 'Potato___healthy': 4, 
     'Tomato_Bacterial_spot': 5, 'Tomato_Early_blight': 6, 'Tomato_Late_blight': 7, 
@@ -299,20 +299,22 @@ app = Flask(__name__)
 CORS(app)
 
 try:
-    genai.configure(api_key=YOUR_GEMINI_API_KEY)
-    llm = genai.GenerativeModel('gemini-1.5-flash-latest')
-    print("Gemini API configured successfully.")
+    llm = Groq(api_key=GROQ_API_KEY)
+    print("Groq API configured successfully.")
 except Exception as e:
-    print(f"Error configuring Gemini API: {e}")
+    print(f"Error configuring Groq API: {e}")
     llm = None
 
-model_path = os.path.join('models', 'crop_disease_model.h5')
-try:
-    model = tf.keras.models.load_model(model_path, compile=False)
-    print(f"Model loaded successfully from {model_path}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None
+# Load .keras model first, fallback to .h5
+model = None
+for model_file in ['hybrid_crop_disease_model.keras', 'crop_disease_model.h5']:
+    model_path = os.path.join('models', model_file)
+    try:
+        model = tf.keras.models.load_model(model_path, compile=False)
+        print(f"Model loaded successfully from {model_path}")
+        break
+    except Exception as e:
+        print(f"Could not load {model_file}: {e}")
 
 if isinstance(CLASS_NAMES, dict):
     class_indices_to_names = {v: k for k, v in CLASS_NAMES.items()}
@@ -332,11 +334,10 @@ def preprocess_image(image_file):
 
 def generate_advisory_report(disease_name):
     if not llm:
-        return "Error: Gemini API is not configured."
+        return "Error: Groq API is not configured."
 
     clean_disease_name = disease_name.replace('___', ' ').replace('__', ' ').replace('_', ' ')
 
-    # [FIX] Made the prompt stricter to ensure clean output.
     prompt = f"""
     You are an expert agricultural scientist. Your task is to generate a detailed advisory report for a farmer in Jaipur, Rajasthan, India, about the crop disease: "{clean_disease_name}".
 
@@ -357,10 +358,15 @@ def generate_advisory_report(disease_name):
     **Related Diseases:** What other diseases might occur alongside or be mistaken for this one?
     """
     try:
-        response = llm.generate_content(prompt)
-        return response.text
+        response = llm.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=2048,
+        )
+        return response.choices[0].message.content
     except Exception as e:
-        print(f"Error generating content with Gemini: {e}")
+        print(f"Error generating content with Groq: {e}")
         return f"Error generating report: {e}"
 
 def clean_text_for_pdf(text):

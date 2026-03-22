@@ -11,3 +11,4 @@ dist/
 backend/.env
 react-frontend/.env
 *.env
+
