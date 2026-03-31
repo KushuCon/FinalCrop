@@ -15,8 +15,8 @@ AI-powered crop disease detection system with 99.48% accuracy using deep learnin
 
 **1. Clone Repository**
 ```bash
-git clone https://github.com/yourusername/agricare-ai.git
-cd agricare-ai
+git clone https://github.com/KushuCon/FinalCrop.git
+cd FinalCrop
 ```
 
 **2. Backend Setup**
@@ -38,7 +38,7 @@ npm install
 - Place `best_bet_plant_model.keras` in `backend/models/`
 
 **5. Configure API Key**
-- Get Groq API key from https://console.groq.com/
+- Get API key from wherever you like and config it
 - Edit `backend/app.py`: Replace `GROQ_API_KEY = "your_key_here"`
 
 ---
@@ -167,9 +167,6 @@ flask-cors==5.0.0
 ```bash
 # Reinstall dependencies
 pip install -r requirements.txt
-
-# Check model file exists
-ls backend/models/best_bet_plant_model.keras
 ```
 
 **Frontend issues:**
@@ -183,7 +180,7 @@ npm install
 ```
 
 **API errors:**
-- Verify Groq API key in `backend/app.py`
+- Verify API key in `backend/app.py`
 - Check internet connection
 
 ---
@@ -229,7 +226,7 @@ MIT License - see LICENSE file
 
 - PlantVillage Dataset
 - TensorFlow/Keras
-- Groq (LLaMA API)
+- API Key (LLaMA API)
 
 ---
 
