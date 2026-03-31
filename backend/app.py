@@ -307,7 +307,7 @@ except Exception as e:
 
 # Load .keras model first, fallback to .h5
 model = None
-for model_file in ['hybrid_crop_disease_model.keras', 'crop_disease_model.h5']:
+for model_file in ['best_bet_plant_model.keras', 'crop_disease_model.h5']:
     model_path = os.path.join('models', model_file)
     try:
         model = tf.keras.models.load_model(model_path, compile=False)
