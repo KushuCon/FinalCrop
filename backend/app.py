@@ -305,7 +305,7 @@ except Exception as e:
     print(f"Error configuring Groq API: {e}")
     llm = None
 
-# Load .keras model first, fallback to .h5
+
 model = None
 for model_file in ['best_bet_plant_model.keras', 'crop_disease_model.h5']:
     model_path = os.path.join('models', model_file)
