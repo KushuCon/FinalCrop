@@ -6,6 +6,8 @@ AI-powered crop disease detection system with 99.48% accuracy using deep learnin
 
 ## 🚀 Quick Start
 
+## LATEST MODEL DRIVE LINK(GITHUB NOT PUSHING MODEL DUE TO RESTRICTIONS)
+- https://drive.google.com/file/d/1KszZIaQGutVbaCMVvGd-oQrVkmANfUi-/view?usp=sharing
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
